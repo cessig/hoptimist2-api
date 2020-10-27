@@ -23,10 +23,10 @@ app.use("/api/v1/beers", routes.beers);
 app.use("/api/v1/users", routes.user);
 
 // Brewery Routes
-app.use("api/v1/brewery", routes.brewery);
+app.use("/api/v1/brewery", routes.brewery);
 
 // Profile Routes
-app.use("api/v1/profile", routes.profile);
+app.use("/api/v1/profile", routes.profile);
 
 /* Server Listener */
 

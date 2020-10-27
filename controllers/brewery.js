@@ -5,7 +5,7 @@ const index = (req, res) => {
 	db.Brewery.find({}, (err, foundBrewerys) => {
 		if (err) console.log("Error in brewery#index", err);
 
-		if (foundBrewery.length)
+		if (!foundBrewerys.length)
 			return res.status(200).json({ message: "No brewerys found in database" });
 
 		res.status(200).json({ brewery: foundBrewerys });
@@ -51,9 +51,29 @@ const update = (req, res) => {
 	);
 };
 
+const destroy = (req, res) => {
+	db.Brewery.findByIdAndDelete(req.params.id),
+		function (err, deletedBrewery) {
+			if (err) {
+				console.log(err);
+				return res.send(err);
+			}
+			db.Beer.deleteOne({ brewery: deletedBrewery._id }, function (
+				err,
+				removedBeers
+			) {
+				if (err) {
+					console.log(err);
+					return res.send(err);
+				}
+				res.status(200).json({ message: "you deleted this brewery" });
+			});
+		};
+};
 module.exports = {
 	index,
 	show,
 	create,
 	update,
+	destroy,
 };

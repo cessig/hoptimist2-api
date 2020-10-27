@@ -30,10 +30,24 @@ const show = (req, res) => {
 
 // create
 const create = (req, res) => {
+	console.log(req.body);
 	db.Beer.create(req.body, (err, savedBeer) => {
-		if (err) console.log("Error in beers#create", err);
+		if (err) {
+			console.log("Error in beers#create", err);
+			return res.send(err);
+		}
 
-		res.status(201).json({ beer: savedBeer });
+		db.Brewery.findById(req.body.brewery, function (err, foundBrewery) {
+			if (err) {
+				console.log(err);
+				return res.send(err);
+			}
+			console.log(foundBrewery);
+			foundBrewery.beers.push(savedBeer);
+			foundBrewery.save();
+
+			res.status(201).json({ beer: savedBeer });
+		});
 	});
 };
 
@@ -55,9 +69,32 @@ const update = (req, res) => {
 	);
 };
 
+const destroy = (req, res) => {
+	db.Beer.findByIdAndDelete(req.params.id, (err, deletedBeer) => {
+		if (err) console.log("Error in beers#destroy", err);
+
+		if (!deletedBeer)
+			return res
+				.status(200)
+				.json({ message: "No beer with that id found in db" });
+
+		db.Brewery.findById(deletedBeer.brewery, function (err, foundBrewery) {
+			if (err) {
+				console.logt(err);
+				return res.send(err);
+			}
+			foundBrewery.beers.remove(deletedBeer);
+			foundBrewery.save();
+
+			res.status(200).json({ message: "you deleted this beer" });
+		});
+	});
+};
+
 module.exports = {
 	index,
 	show,
 	create,
 	update,
+	destroy,
 };

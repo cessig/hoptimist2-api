@@ -53,7 +53,6 @@ const login = async (req, res) => {
 		const isMatch = await bcrypt.compare(req.body.password, foundUser.password);
 
 		if (isMatch) {
-			//TODO create a json web token
 			const signedJwt = await jwt.sign(
 				{
 					_id: foundUser._id,
