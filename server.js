@@ -17,10 +17,16 @@ app.use(cors());
 app.use("/api/v1/auth", routes.auth);
 
 // Beer Routes
-//app.use("/api/v1/beers", routes.beer);
+app.use("/api/v1/beers", routes.beers);
+
+//User Routes
+app.use("/api/v1/users", routes.user);
 
 // Brewery Routes
-//app.use("api/v1/breweries", routes.brewery);
+app.use("api/v1/brewery", routes.brewery);
+
+// Profile Routes
+app.use("api/v1/profile", routes.profile);
 
 /* Server Listener */
 

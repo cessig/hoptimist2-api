@@ -1,103 +1,59 @@
-const express = require("express");
-const router = express.Router();
-
 const db = require("../models");
 
-// base route is /breweries
-
 // index
-router.get("/", function (req, res) {
-  db.Brewery.find({}, function (error, foundBreweries) {
-    if (error) return res.send(error);
+const index = (req, res) => {
+	db.Brewery.find({}, (err, foundBrewerys) => {
+		if (err) console.log("Error in brewery#index", err);
 
-    const context = {
-      breweries: foundBreweries,
-    };
+		if (foundBrewery.length)
+			return res.status(200).json({ message: "No brewerys found in database" });
 
-    res.render("brewery/index", context);
-  });
-});
+		res.status(200).json({ brewery: foundBrewerys });
+	});
+};
 
-// new
-router.get("/new", function (req, res) {
-  res.render("brewery/new");
-});
+const show = (req, res) => {
+	db.Brewery.findById(req.params.id, (err, foundBrewery) => {
+		if (err) console.log("Error in brewery#show", err);
 
-// create
-router.post("/", function (req, res) {
-  db.Brewery.create(req.body, function (error, createdBrewery) {
-    if (error) {
-      console.log(error);
-      return res.send(error);
-    }
+		if (!foundBrewery)
+			return res
+				.status(200)
+				.json({ message: "No brewery with that if ound in db" });
 
-    res.redirect("/breweries");
-  });
-});
+		res.status(200).json({ brewery: foundBrewery });
+	});
+};
 
-// show
-router.get("/:id", function (req, res) {
-  db.Brewery.findById(req.params.id)
-    .populate("beers")
-    .exec(function (error, foundBrewery) {
-      if (error) {
-        console.log(error);
-        return res.send(error);
-      }
+const create = (req, res) => {
+	db.Brewery.create(req.body, (err, savedBrewery) => {
+		if (err) console.log("Error in brewery#create:", err);
 
-      const context = { brewery: foundBrewery };
-      res.render("brewery/show", context);
-    });
-});
+		res.status(201).json({ brewery: savedBrewery });
+	});
+};
 
-// edit
-router.get("/:id/edit", function (req, res) {
-  db.Brewery.findById(req.params.id, function (error, foundBrewery) {
-    if (error) {
-      console.log(error);
-      return res.send(error);
-    }
-    const context = { brewery: foundBrewery };
-    res.render("brewery/edit", context);
-  });
-});
+const update = (req, res) => {
+	db.Brewery.findByIdAndUpdate(
+		req.params.id,
+		req.body,
+		{ new: true },
+		(err, updatedBrewery) => {
+			if (err) console.log("Error in brewery#update", err);
 
-// update
-router.put("/:id", function (req, res) {
-  db.Brewery.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    { new: true },
-    function (error, updatedBrewery) {
-      if (error) {
-        console.log(error);
-        return res.send(error);
-      }
+			if (!updatedBrewery)
+				return res
+					.status(200)
+					.json({ message: "No brewery with that id found in db" });
 
-      res.redirect(`/breweries/${updatedBrewery._id}`);
-    }
-  );
-});
+			res.status(200).json({ brewery: updatedBrewery });
+		}
+	);
+};
 
-// delete
-router.delete("/:id", function (req, res) {
-  db.Brewery.findByIdAndDelete(req.params.id, function (error, deletedBrewery) {
-    if (error) {
-      console.log(error);
-      return res.send(error);
-    }
-
-    db.Beer.deleteOne({ brewery: deletedBrewery._id }, function (
-      error,
-      removedBeers
-    ) {
-      if (error) {
-        console.log(error);
-        return res.send(error);
-      }
-      res.redirect("/breweries");
-    });
-  });
-});
-
-module.exports = router;
+module.exports = {
+	index,
+	show,
+	create,
+	update,
+};
