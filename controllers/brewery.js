@@ -52,23 +52,24 @@ const update = (req, res) => {
 };
 
 const destroy = (req, res) => {
-	db.Brewery.findByIdAndDelete(req.params.id),
-		function (err, deletedBrewery) {
+	console.log("We made it");
+	db.Brewery.findByIdAndDelete(req.params.id, function (err, deletedBrewery) {
+		if (err) {
+			console.log(err);
+			return res.send(err);
+		}
+		console.log(deletedBrewery._id);
+		db.Beer.deleteMany({ brewery: deletedBrewery._id }, function (
+			err,
+			removedBeers
+		) {
 			if (err) {
 				console.log(err);
 				return res.send(err);
 			}
-			db.Beer.deleteOne({ brewery: deletedBrewery._id }, function (
-				err,
-				removedBeers
-			) {
-				if (err) {
-					console.log(err);
-					return res.send(err);
-				}
-				res.status(200).json({ message: "you deleted this brewery" });
-			});
-		};
+			res.status(200).json({ message: "you deleted this brewery" });
+		});
+	});
 };
 module.exports = {
 	index,
