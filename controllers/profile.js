@@ -49,9 +49,31 @@ const update = (req, res) => {
 	);
 };
 
+const destroy = (req, res) => {
+	console.log("We made it");
+	db.Profile.findByIdAndDelete(req.params.id, function (err, deletedProfile) {
+		if (err) {
+			console.log(err);
+			return res.send(err);
+		}
+		console.log(deletedProfile._id);
+		db.User.deleteOne({ brewery: deletedProfile._id }, function (
+			err,
+			removedBeers
+		) {
+			if (err) {
+				console.log(err);
+				return res.send(err);
+			}
+			res.status(200).json({ message: "you deleted this profile" });
+		});
+	});
+};
+
 module.exports = {
 	index,
 	show,
 	create,
 	update,
+	destroy,
 };
