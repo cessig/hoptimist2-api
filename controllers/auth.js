@@ -20,14 +20,24 @@ const register = async (req, res) => {
 		const hash = await bcrypt.hash(req.body.password, salt);
 		req.body.password = hash;
 		// create user with req.body and hashed password
-		const createdUser = await db.User.create({ ...req.body, password: hash });
+		const createdUser = await db.User.create({
+			email: req.body.email,
+			username: req.body.username,
+			password: hash,
+		});
+		const createdProfile = await db.Profile.create({
+			firstname: req.body.firstname,
+			lastname: req.body.lastname,
+			user: createdUser._id,
+		});
 
 		return res
 			.status(201)
-			.json({ status: 201, message: "success", createdUser });
+			.json({ status: 201, message: "success", createdUser, createdProfile });
 	} catch (err) {
 		return res.status(500).json({
 			status: 500,
+			error: err,
 			message: "Something went wrong. Please try again",
 		});
 	}

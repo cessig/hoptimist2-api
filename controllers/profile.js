@@ -57,10 +57,7 @@ const destroy = (req, res) => {
 			return res.send(err);
 		}
 		console.log(deletedProfile._id);
-		db.User.deleteOne({ brewery: deletedProfile._id }, function (
-			err,
-			removedBeers
-		) {
+		db.User.deleteOne({ _id: deletedProfile.user }, function (err) {
 			if (err) {
 				console.log(err);
 				return res.send(err);
