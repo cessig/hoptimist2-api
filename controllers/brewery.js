@@ -1,15 +1,42 @@
 const db = require("../models");
 
 // index
-const index = (req, res) => {
-	db.Brewery.find({}, (err, foundBrewerys) => {
-		if (err) console.log("Error in brewery#index", err);
+const index = async (req, res) => {
+	try {
+		const foundBrewerys = await db.Brewery.find({});
 
-		if (!foundBrewerys.length)
-			return res.status(200).json({ message: "No brewerys found in database" });
+		if (!foundBrewerys.length) return res.status(200).json({ brewerys: [] });
 
-		res.status(200).json({ brewery: foundBrewerys });
-	});
+		const breweryWithBeers = [];
+		for (let index = 0; index < foundBrewerys.length; index++) {
+			const brewery = foundBrewerys[index].toObject();
+			console.log("index", index);
+			const beersArray = brewery.beers;
+			for (
+				let beersArrayIndex = 0;
+				beersArrayIndex < beersArray.length;
+				beersArrayIndex++
+			) {
+				console.log("beersArrayIndex", beersArrayIndex);
+				const beerId = beersArray[beersArrayIndex];
+				const foundBeer = await db.Beer.findById(beerId);
+				if (foundBeer) {
+					console.log(foundBeer.name);
+
+					beersArray[beersArrayIndex] = foundBeer;
+				}
+			}
+
+			breweryWithBeers.push(brewery);
+		}
+		res.status(200).json({ brewery: breweryWithBeers });
+	} catch (err) {
+		console.log(err);
+		return res.status(500).json({
+			status: 500,
+			message: "Something went wrong. Please try again",
+		});
+	}
 };
 
 const show = (req, res) => {
