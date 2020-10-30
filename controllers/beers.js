@@ -3,15 +3,36 @@ const db = require("../models");
 // b
 
 // index
-const index = (req, res) => {
-	db.Beer.find({}, (err, foundBeers) => {
-		if (err) console.log("Error in beers#index:", err);
+const index = async (req, res) => {
+	try {
+		const foundBeers = await db.Beer.find({});
 
-		if (!foundBeers.length)
-			return res.status(200).json({ message: "No beers foundin db" });
+		if (!foundBeers.length) return res.status(200).json({ beers: [] });
 
-		res.status(200).json({ beers: foundBeers });
-	});
+		const beersWithBrewery = [];
+		for (let index = 0; index < foundBeers.length; index++) {
+			// In order to modify the MonboDB collection item,
+			// we need to call 'toObject' or else we cannot modify it
+			// Very frustrating!!!
+			const beer = foundBeers[index].toObject();
+
+			const breweryId = beer.brewery;
+			const foundBrewery = await db.Brewery.findById(breweryId);
+			if (foundBrewery) {
+				console.log(foundBrewery.name);
+				beer.breweryName = foundBrewery.name;
+			}
+			console.log(beer);
+			beersWithBrewery.push(beer);
+		}
+
+		res.status(200).json({ beers: beersWithBrewery });
+	} catch (err) {
+		return res.status(500).json({
+			status: 500,
+			message: "Something went wrong. Please try again",
+		});
+	}
 };
 
 // new
