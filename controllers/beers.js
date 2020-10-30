@@ -10,7 +10,7 @@ const index = (req, res) => {
 		if (!foundBeers.length)
 			return res.status(200).json({ message: "No beers foundin db" });
 
-		res.status(200).json({ beers, foundBeers });
+		res.status(200).json({ beers: foundBeers });
 	});
 };
 
