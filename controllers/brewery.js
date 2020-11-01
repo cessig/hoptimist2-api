@@ -39,17 +39,40 @@ const index = async (req, res) => {
 	}
 };
 
-const show = (req, res) => {
-	db.Brewery.findById(req.params.id, (err, foundBrewery) => {
-		if (err) console.log("Error in brewery#show", err);
+const show = async (req, res) => {
+	try {
+		const foundBrewery = await db.Brewery.findById(req.params.id);
 
 		if (!foundBrewery)
 			return res
 				.status(200)
 				.json({ message: "No brewery with that if ound in db" });
 
-		res.status(200).json({ brewery: foundBrewery });
-	});
+		const breweryWithBeers = foundBrewery.toObject();
+		const beersArray = breweryWithBeers.beers;
+		for (
+			let beersArrayIndex = 0;
+			beersArrayIndex < beersArray.length;
+			beersArrayIndex++
+		) {
+			console.log("beersArrayIndex", beersArrayIndex);
+			const beerId = beersArray[beersArrayIndex];
+			const foundBeer = await db.Beer.findById(beerId);
+			if (foundBeer) {
+				console.log(foundBeer.name);
+
+				beersArray[beersArrayIndex] = foundBeer;
+			}
+		}
+
+		res.status(200).json({ brewery: breweryWithBeers });
+	} catch (err) {
+		console.log(err);
+		return res.status(500).json({
+			status: 500,
+			message: "Something went wrong. Please try again",
+		});
+	}
 };
 
 const create = (req, res) => {
