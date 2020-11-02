@@ -73,7 +73,7 @@ const create = (req, res) => {
 };
 
 const update = (req, res) => {
-	db.Beer.findByIdAndRemove(
+	db.Beer.findByIdAndUpdate(
 		req.params.id,
 		req.body,
 		{ new: true },
